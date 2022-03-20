@@ -19,6 +19,8 @@ parser.add_argument("--seed", type=int, default=0, help="Random seed for all sam
 parser.add_argument("--data_dir", type=str, help="Path to data folder")
 # parser.add_argument("--bert_path", default="bert-base-multilingual-uncased", type=str, help="Path to base bert model")
 
+parser.add_argument("--model", default="mlp", type=str, help="Name of the model: [mlp, lstm, tlstm, wtlstm]")
+
 parser.add_argument("--lr", type=float, default=1e-4, help="Specifies the learning rate for optimizer")
 parser.add_argument("--dropout", type=float, default=0.3, help="Specifies the dropout for BERT output")
 
@@ -61,13 +63,13 @@ def run_training(params, save_model=False):
     train_dl = DataLoader(train_ds, batch_size=args.train_batch_size, shuffle=True)
     val_dl = DataLoader(val_ds, batch_size=args.val_batch_size, shuffle=True)
 
-    model = model.TimeLSTM_MLP(  
-                    # lstm_layers=params['lstm_layers'], 
-                    hidden_size=params['hidden_size'],
-                    lstm_hidden_size=params['lstm_hidden_size'],
-                    dropout=params['dropout'],
-                    num_layers=params['num_layers']
-                  )
+    if args.model == 'mlp':
+        model = model.MLP(params)
+    elif args.model == 'lstm':
+        model = model.LSTM_MLP(params)
+    elif args.model == 'tlstm':
+        model = model.TimeLSTM_MLP(params)
+
     model.to(DEVICE)
 
     param_optimizer = list(model.named_parameters())
@@ -94,7 +96,7 @@ def run_training(params, save_model=False):
         gamma=0.5
     )
 
-    eng = Engine(model, optimizer, device=DEVICE)
+    eng = Engine(model, optimizer, DEVICE, args.model)
 
     best_loss = np.inf
 
@@ -150,7 +152,9 @@ def main():
             'bert_path': args.bert_path,
             'input_size': 768,
             'ntargets': 1,
-            'hidden_size': args.hidden_size
+            'hidden_size': args.hidden_size,
+            'lstm_hidden_size': args.lstm_hidden_size,
+            'device': DEVICE
         }
 
         run_training(params)
