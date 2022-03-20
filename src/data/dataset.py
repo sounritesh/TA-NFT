@@ -45,7 +45,7 @@ class NFTPriceDataset(Dataset):
             for i in range(pad_len):
                 np.append(con_list, tweets_tmp.iloc[0].values)
             # print(con_list.shape)
-            con_list = con_list.squeeze(1)
+            con_list = con_list.squeeze(0)
             imp_w = con_list[:, 3] # have to modify this
 
             print(type(con_list[:, 2]), con_list[:, 2], con_list[:, 2].shape)
