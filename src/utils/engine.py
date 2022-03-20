@@ -15,11 +15,11 @@ class Engine:
     def train(self, data_loader):
         self.model.train()
         final_loss = 0
-        for x, t, w, y in data_loader:
+        for data in data_loader:
             self.optimizer.zero_grad()
-            inputs = x.to(self.device)
-            timestamps = t.to(self.device) 
-            targets = y.to(self.device)
+            inputs = data['encs'].to(self.device)
+            timestamps = data['ts_w'].to(self.device) 
+            targets = data['price'].to(self.device)
             
             if self.model_type == 'tlstm':
                 outputs = self.model(inputs, timestamps).squeeze(1)
@@ -39,10 +39,10 @@ class Engine:
         self.model.eval()
         final_loss = 0
         with torch.no_grad():
-            for x, t, y in data_loader:
-                inputs = x.to(self.device)
-                timestamps = t.to(self.device)
-                targets = y.to(self.device)
+            for data in data_loader:
+                inputs = data['encs'].to(self.device)
+                timestamps = data['ts_w'].to(self.device) 
+                targets = data['price'].to(self.device)
 
                 if self.model_type == 'tlstm':
                     outputs = self.model(inputs, timestamps).squeeze(1)

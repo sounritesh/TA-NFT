@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 
 from src.data.dataset import NFTPriceDataset
 from src.utils.engine import Engine
-from src.model import model
+import src.model.model as model_pkg
 from src.utils.config import DEVICE, UTC
 
 parser = ArgumentParser(description="Train model on the dataset and evaluate results.")
@@ -48,13 +48,12 @@ def run_training(params, save_model=False):
 
     prices_ds = pd.read_csv(os.path.join(args.data_dir, "avg_price.csv"))
     prices_ds['ts'] = pd.to_datetime(prices_ds.date)
-    prices_ds['ts'] = prices_ds['ts'].apply(lambda x: x.tz_localize(UTC))
 
     prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
     prices_test = prices_ds.drop(prices_train.index)
 
     tweets_ds = pd.read_csv(os.path.join(args.data_dir, "tweets.csv"))
-    tweets_ds['Datetime'] = pd.to_datetime(tweets_ds['Datetime'])
+    tweets_ds['Datetime'] = pd.to_datetime(tweets_ds['Datetime']).dt.tz_localize(None)
 
     train_ds = NFTPriceDataset(prices_train, tweets_ds, encodings, args.lookback)
     val_ds = NFTPriceDataset(prices_test, tweets_ds, encodings, args.lookback)
@@ -63,11 +62,11 @@ def run_training(params, save_model=False):
     val_dl = DataLoader(val_ds, batch_size=args.val_batch_size, shuffle=True)
 
     if args.model == 'mlp':
-        model = model.MLP(params)
+        model = model_pkg.MLP(params)
     elif args.model == 'lstm':
-        model = model.LSTM_MLP(params)
+        model = model_pkg.LSTM_MLP(params)
     elif args.model == 'tlstm':
-        model = model.TimeLSTM_MLP(params)
+        model = model_pkg.TimeLSTM_MLP(params)
 
     model.to(DEVICE)
 
@@ -88,7 +87,7 @@ def run_training(params, save_model=False):
         },
     ]
 
-    optimizer = torch.optim.Adam(optimizer_parameters, lr=params['learning_rate'])
+    optimizer = torch.optim.Adam(optimizer_parameters, lr=params['lr'])
     scheduler = torch.optim.lr_scheduler.StepLR(
         optimizer,
         step_size=5,
