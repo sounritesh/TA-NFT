@@ -8,6 +8,7 @@ class NFTPriceDataset(Dataset):
         self.projects = prices_df.project.values
         self.dates = prices_df.ts.values
         self.prices = prices_df['mean_norm'].values
+        self.prices_og = prices_df['mean'].values
 
         self.lookback = lookback
 
@@ -57,7 +58,8 @@ class NFTPriceDataset(Dataset):
             'encs': torch.tensor(encs, dtype=torch.float),
             'ts_w': torch.tensor(ts_w, dtype=torch.float),
             'imp_w': torch.tensor(imp_w, dtype=torch.float),       
-            'price': torch.tensor(price, dtype=torch.float)     
+            'price': torch.tensor(price, dtype=torch.float),
+            'price_og': torch.tensor(self.prices_og[index], dtype=torch.float)
         }
 
 
