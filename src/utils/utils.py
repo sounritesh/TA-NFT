@@ -3,6 +3,7 @@ import torch
 class MinMaxScaler():
 
     def __init__(self, x, device):
+        x = torch.tensor(x)
         self.x_min = torch.min(x).to(device)
         self.x_max = torch.max(x).to(device)
 
