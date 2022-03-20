@@ -47,7 +47,7 @@ class NFTPriceDataset(Dataset):
             # print(con_list.shape)
             con_list = con_list.squeeze(1)
             imp_w = con_list[:, 3] # have to modify this
-            ts_w = ((dt - con_list[:, 2]).astype(float)*1e-9)/60
+            ts_w = (((np.datetime64(dt) - (np.datetime64(con_list[:, 2])).astype(float)*1e-9)/60
 
             
             for row in con_list:
