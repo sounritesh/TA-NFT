@@ -21,6 +21,8 @@ class Engine:
             timestamps = data['ts_w'].to(self.device) 
             targets = data['price'].to(self.device)
             
+            print(inputs.size, timestamps.size, targets.size)
+
             if self.model_type == 'tlstm':
                 outputs = self.model(inputs, timestamps).squeeze(1)
             else:
