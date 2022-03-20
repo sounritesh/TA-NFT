@@ -6,12 +6,12 @@ import numpy as np
 import pandas as pd
 import random
 import os
-from sklearn.preprocessing import MinMaxScaler
 
 from src.data.dataset import NFTPriceDataset
 from src.utils.engine import Engine
 import src.model.model as model_pkg
 from src.utils.config import DEVICE, UTC
+from src.utils.utils import MinMaxScaler
 
 parser = ArgumentParser(description="Train model on the dataset and evaluate results.")
 parser.add_argument("--seed", type=int, default=0, help="Random seed for all sampling purposes")
@@ -49,13 +49,13 @@ def run_training(params, save_model=False):
     prices_ds = pd.read_csv(os.path.join(args.data_dir, "avg_price.csv"))
     prices_ds['ts'] = pd.to_datetime(prices_ds['ts'])
 
-    target_scaler = MinMaxScaler()
-    target_scaler.fit(prices_ds['mean'].values.reshape(-1, 1))
-
-    prices_ds['mean_norm'] = target_scaler.transform(prices_ds['mean'].values.reshape(-1, 1)).squeeze()
-
     prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
     prices_test = prices_ds.drop(prices_train.index)
+  
+    target_scaler = MinMaxScaler(prices_train['mean'].values, DEVICE)
+
+    prices_train['mean_norm'] = target_scaler.transform(prices_train['mean'].values).cpu().numpy()
+    prices_test['mean_norm'] = target_scaler.transform(prices_test['mean'].values).cpu().numpy()
 
     tweets_ds = pd.read_csv(os.path.join(args.data_dir, "tweets.csv"))
     tweets_ds['Datetime'] = pd.to_datetime(tweets_ds['Datetime']).dt.tz_localize(None)
