@@ -52,7 +52,7 @@ def run_training(params, save_model=False):
     target_scaler = MinMaxScaler()
     target_scaler.fit(prices_ds['mean'].values.reshape(-1, 1))
 
-    prices_ds['mean_norm'] = target_scaler.transform(prices_ds['mean'].values)
+    prices_ds['mean_norm'] = target_scaler.transform(prices_ds['mean'].values.reshape(-1, 1)).squeeze()
 
     prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
     prices_test = prices_ds.drop(prices_train.index)

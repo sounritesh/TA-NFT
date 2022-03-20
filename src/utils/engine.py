@@ -30,8 +30,8 @@ class Engine:
             else:
                 outputs = self.model(inputs).squeeze(1)
 
-            outputs = self.scaler.inverse_transform(outputs)
-            loss = self.loss_fn(targets, outputs)
+            outputs = self.scaler.inverse_transform(outputs.reshape(-1, 1))
+            loss = self.loss_fn(targets, outputs.squeeze())
 
             # print(loss.shape)
             loss.backward()
@@ -55,8 +55,8 @@ class Engine:
                 else:
                     outputs = self.model(inputs).squeeze(1)
 
-                outputs = self.scaler.inverse_transform(outputs)
-                loss = self.loss_fn(targets, outputs)
+                outputs = self.scaler.inverse_transform(outputs.reshape(-1, 1))
+                loss = self.loss_fn(targets, outputs.squeeze())
 
                 final_loss += loss.item()
 
