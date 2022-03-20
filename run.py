@@ -128,7 +128,7 @@ def objective(trial):
         'hidden_size': trial.suggest_int('hidden_size', 18, 768),
         'dropout': trial.suggest_uniform('dropout', 0.1, 0.7),
         'lr': trial.suggest_loguniform('lr', 1e-5, 1e-2),
-        'bert_path': args.bert_path,
+        # 'bert_path': args.bert_path,
         'input_size': 768,
         'ntargets': 1,
     }
@@ -148,7 +148,7 @@ def main():
         params = {
             'dropout': args.dropout,
             'lr': args.lr,
-            'bert_path': args.bert_path,
+            # 'bert_path': args.bert_path,
             'input_size': 768,
             'ntargets': 1,
             'hidden_size': args.hidden_size,
