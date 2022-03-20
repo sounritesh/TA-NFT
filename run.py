@@ -1,5 +1,3 @@
-from ast import arg
-from turtle import clear
 from torch.utils.data import DataLoader
 import torch
 from argparse import ArgumentParser
