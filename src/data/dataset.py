@@ -46,6 +46,8 @@ class NFTPriceDataset(Dataset):
                 np.append(con_list, tweets_tmp.iloc[0].values)
             imp_w = con_list[:, 3] # have to modify this
             ts_w = ((np.datetime64(dt) - con_list[:, 2]).astype(float)*1e-9)/60
+
+            print(con_list.shape)
             for row in con_list:
                 encs.append(self.encodings[row[0]])
 
