@@ -44,7 +44,8 @@ class NFTPriceDataset(Dataset):
             con_list = np.array([tweets_tmp.values])
             for i in range(pad_len):
                 np.append(con_list, tweets_tmp.iloc[0].values)
-            print(con_list.shape)
+            # print(con_list.shape)
+            con_list = con_list.squeeze()
             imp_w = con_list[:, 3] # have to modify this
             ts_w = ((np.datetime64(dt) - con_list[:, 2]).astype(float)*1e-9)/60
 
