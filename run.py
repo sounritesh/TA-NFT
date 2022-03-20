@@ -1,4 +1,5 @@
 from ast import arg
+from turtle import clear
 from torch.utils.data import DataLoader
 import torch
 from argparse import ArgumentParser
@@ -96,7 +97,7 @@ def run_training(params, save_model=False):
         gamma=0.5
     )
 
-    eng = Engine(model, optimizer, DEVICE, args.model)
+    eng = Engine(model, optimizer, DEVICE, args.model)clear
 
     best_loss = np.inf
 
