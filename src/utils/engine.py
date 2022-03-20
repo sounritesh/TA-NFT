@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch
+from tqdm import tqdm
 
 class Engine:
     def __init__(self, model, optimizer, device, model_type):
@@ -15,7 +16,7 @@ class Engine:
     def train(self, data_loader):
         self.model.train()
         final_loss = 0
-        for data in data_loader:
+        for data in tqdm(data_loader, total=len(data_loader)):
             self.optimizer.zero_grad()
             inputs = data['encs'].to(self.device)
             timestamps = data['ts_w'].to(self.device) 
@@ -41,7 +42,7 @@ class Engine:
         self.model.eval()
         final_loss = 0
         with torch.no_grad():
-            for data in data_loader:
+            for data in tqdm(data_loader, total=len(data_loader)):
                 inputs = data['encs'].to(self.device)
                 timestamps = data['ts_w'].to(self.device) 
                 targets = data['price'].to(self.device)
