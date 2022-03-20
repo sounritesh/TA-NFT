@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import random
 import os
-from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 
 from src.data.dataset import NFTPriceDataset
 from src.utils.engine import Engine
@@ -48,6 +48,11 @@ def run_training(params, save_model=False):
 
     prices_ds = pd.read_csv(os.path.join(args.data_dir, "avg_price.csv"))
     prices_ds['ts'] = pd.to_datetime(prices_ds['ts'])
+
+    target_scaler = MinMaxScaler()
+    target_scaler.fit(prices_ds['mean'].values)
+
+    prices_ds['mean_norm'] = target_scaler.transform(prices_ds['mean'].values)
 
     prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
     prices_test = prices_ds.drop(prices_train.index)
@@ -94,7 +99,7 @@ def run_training(params, save_model=False):
         gamma=0.5
     )
 
-    eng = Engine(model, optimizer, DEVICE, args.model)
+    eng = Engine(model, optimizer, DEVICE, args.model, target_scaler)
 
     best_loss = np.inf
 

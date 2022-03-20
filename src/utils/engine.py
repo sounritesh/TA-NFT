@@ -3,11 +3,12 @@ import torch
 from tqdm import tqdm
 
 class Engine:
-    def __init__(self, model, optimizer, device, model_type):
+    def __init__(self, model, optimizer, device, model_type, scaler):
         self.model = model
         self.optimizer = optimizer
         self.device = device
         self.model_type = model_type
+        self.scaler =  scaler
 
     @staticmethod
     def loss_fn(targets, outputs):
@@ -28,6 +29,8 @@ class Engine:
                 outputs = self.model(inputs, timestamps).squeeze(1)
             else:
                 outputs = self.model(inputs).squeeze(1)
+
+            outputs = self.scaler.inverse_transform(outputs)
             loss = self.loss_fn(targets, outputs)
 
             # print(loss.shape)
@@ -51,6 +54,8 @@ class Engine:
                     outputs = self.model(inputs, timestamps).squeeze(1)
                 else:
                     outputs = self.model(inputs).squeeze(1)
+
+                outputs = self.scaler.inverse_transform(outputs)
                 loss = self.loss_fn(targets, outputs)
 
                 final_loss += loss.item()

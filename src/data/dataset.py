@@ -7,7 +7,7 @@ class NFTPriceDataset(Dataset):
     def __init__(self, prices_df, tweets_df, encodings, lookback):
         self.projects = prices_df.project.values
         self.dates = prices_df.ts.values
-        self.prices = prices_df['mean'].values
+        self.prices = prices_df['mean_norm'].values
 
         self.lookback = lookback
 
