@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
 
-from model.rnn import TimeLSTM
+from src.model.rnn import TimeLSTM
 
 class TimeLSTM_MLP(nn.Module):
     def __init__(self, params):
