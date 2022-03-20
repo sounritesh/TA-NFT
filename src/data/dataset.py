@@ -41,7 +41,10 @@ class NFTPriceDataset(Dataset):
                 encs.append(self.encodings[row['Unnamed: 0']])
         else:
             pad_len = self.lookback - len(tweets_tmp)
-            tweets_tmp = pd.concat([tweets_tmp, pad_len*tweets_tmp.iloc[0]])
+            con_list = [tweets_tmp]
+            for i in range(pad_len):
+                con_list.append(tweets_tmp.iloc[0])
+            tweets_tmp = pd.concat(con_list)
             imp_w = tweets_tmp.LikeCount.values # have to modify this
             ts_w = ((np.datetime64(dt) - tweets_tmp['Datetime'].values).astype(float)*1e-9)/60
             for i, row in tweets_tmp.iterrows():
