@@ -50,7 +50,7 @@ def run_training(params, save_model=False):
     prices_ds['ts'] = pd.to_datetime(prices_ds['ts'])
 
     target_scaler = MinMaxScaler()
-    target_scaler.fit(prices_ds['mean'].values)
+    target_scaler.fit(prices_ds['mean'].values.reshape(-1, 1))
 
     prices_ds['mean_norm'] = target_scaler.transform(prices_ds['mean'].values)
 
