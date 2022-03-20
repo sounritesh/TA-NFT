@@ -65,14 +65,14 @@ class LSTM_MLP(nn.Module):
         self.mlp = nn.Sequential(*layers)
 
     def init_hidden(self, bs):
-        h = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to(self.device)
-        c = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to(self.device)
+        h = (torch.zeros(bs, self.lstm_hidden_size, requires_grad=True)).to(self.device)
+        c = (torch.zeros(bs, self.lstm_hidden_size, requires_grad=True)).to(self.device)
 
         return (h, c)
 
     def init_hidden_normal(self, bs):
-      h = (torch.zeros(1, bs, self.hidden_size, requires_grad=True)).to(self.device)
-      c = (torch.zeros(1, bs, self.hidden_size, requires_grad=True)).to(self.device)
+      h = (torch.zeros(1, bs, self.lstm_hidden_size, requires_grad=True)).to(self.device)
+      c = (torch.zeros(1, bs, self.lstm_hidden_size, requires_grad=True)).to(self.device)
 
       return (h, c)
 
