@@ -11,7 +11,7 @@ class Engine:
 
     @staticmethod
     def loss_fn(targets, outputs):
-        return nn.BCEWithLogitsLoss()(outputs, targets)
+        return nn.MSELoss()(outputs, targets)
 
     def train(self, data_loader):
         self.model.train()

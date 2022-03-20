@@ -19,7 +19,8 @@ class TimeLSTM_MLP(nn.Module):
             nn.Linear(self.lstm_hidden_size, self.hidden_size),
             nn.Dropout(self.dropout),
             nn.ReLU(),
-            nn.Linear(self.hidden_size, self.ntargets)
+            nn.Linear(self.hidden_size, self.ntargets),
+            nn.LeakyReLU()
         ]
 
         # for i in range(num_layers):
@@ -54,7 +55,8 @@ class LSTM_MLP(nn.Module):
             nn.Linear(self.lstm_hidden_size, self.hidden_size),
             nn.Dropout(self.dropout),
             nn.ReLU(),
-            nn.Linear(self.hidden_size, self.ntargets)
+            nn.Linear(self.hidden_size, self.ntargets),
+            nn.LeakyReLU()
         ]
 
         # for i in range(num_layers):
@@ -100,7 +102,8 @@ class MLP(nn.Module):
             nn.Linear(self.input_size, self.hidden_size),
             nn.Dropout(self.dropout),
             nn.ReLU(),
-            nn.Linear(self.hidden_size, self.ntargets)
+            nn.Linear(self.hidden_size, self.ntargets),
+            nn.LeakyReLU()
         ]
 
         self.mlp = nn.Sequential(*layers)
