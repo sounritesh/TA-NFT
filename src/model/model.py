@@ -106,4 +106,4 @@ class MLP(nn.Module):
         self.mlp = nn.Sequential(*layers)
 
     def forward(self, x):
-        return self.mlp(x)
+        return self.mlp(x[0])
