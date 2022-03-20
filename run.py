@@ -47,7 +47,7 @@ def run_training(params, save_model=False):
     encodings = np.load(os.path.join(args.data_dir, "tweet_encodings.npy"))
 
     prices_ds = pd.read_csv(os.path.join(args.data_dir, "avg_price.csv"))
-    prices_ds['ts'] = pd.to_datetime(prices_ds.date)
+    prices_ds['ts'] = pd.to_datetime(prices_ds['date'])
 
     prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
     prices_test = prices_ds.drop(prices_train.index)
