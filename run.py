@@ -97,7 +97,7 @@ def run_training(params, save_model=False):
         gamma=0.5
     )
 
-    eng = Engine(model, optimizer, DEVICE, args.model)clear
+    eng = Engine(model, optimizer, DEVICE, args.model)
 
     best_loss = np.inf
 
