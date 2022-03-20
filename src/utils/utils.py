@@ -12,4 +12,4 @@ class MinMaxScaler():
         return (torch.tensor(x).to(self.device) - self.x_min)/(self.x_max - self.x_min)
 
     def inverse_transform(self, out):
-        return torch.tensor(out)*(self.x_max - self.x_min) + self.x_min
+        return out*(self.x_max - self.x_min) + self.x_min
