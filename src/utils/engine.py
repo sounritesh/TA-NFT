@@ -12,6 +12,10 @@ class Engine:
 
     @staticmethod
     def loss_fn(targets, outputs):
+        return nn.BCELoss()(outputs, targets)
+
+    @staticmethod
+    def mse_loss(targets, outputs):
         return nn.MSELoss()(outputs, targets)
 
     def train(self, data_loader):
@@ -21,7 +25,7 @@ class Engine:
             self.optimizer.zero_grad()
             inputs = data['encs'].to(self.device)
             timestamps = data['ts_w'].to(self.device) 
-            targets = data['price_og'].to(self.device)
+            targets = data['price'].to(self.device)
             
             # print(inputs.size(), timestamps.size(), targets.size())
 
@@ -30,7 +34,7 @@ class Engine:
             else:
                 outputs = self.model(inputs).squeeze(1)
 
-            outputs = self.scaler.inverse_transform(outputs)
+            # outputs = self.scaler.inverse_transform(outputs)
             loss = self.loss_fn(targets, outputs)
 
             # print(loss.shape)
@@ -56,7 +60,7 @@ class Engine:
                     outputs = self.model(inputs).squeeze(1)
 
                 outputs = self.scaler.inverse_transform(outputs)
-                loss = self.loss_fn(targets, outputs)
+                loss = self.mse_loss(targets, outputs)
 
                 final_loss += loss.item()
 
