@@ -133,8 +133,10 @@ def objective(trial):
         'dropout': trial.suggest_uniform('dropout', 0.1, 0.7),
         'lr': trial.suggest_loguniform('lr', 1e-5, 1e-2),
         # 'bert_path': args.bert_path,
+        'lstm_hidden_size': trial.suggest_int('lstm_hidden_size', 18, 768),
         'input_size': 768,
         'ntargets': 1,
+        'device': DEVICE
     }
     return run_training(params, False)
 
