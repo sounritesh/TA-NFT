@@ -20,7 +20,7 @@ class TimeLSTM_MLP(nn.Module):
             nn.Dropout(self.dropout),
             nn.ReLU(),
             nn.Linear(self.hidden_size, self.ntargets),
-            nn.Sigmoid()
+            # nn.Sigmoid()
         ]
 
         # for i in range(num_layers):
@@ -56,7 +56,7 @@ class LSTM_MLP(nn.Module):
             nn.Dropout(self.dropout),
             nn.ReLU(),
             nn.Linear(self.hidden_size, self.ntargets),
-            nn.Sigmoid()
+            # nn.Sigmoid()
         ]
 
         # for i in range(num_layers):
@@ -103,7 +103,7 @@ class MLP(nn.Module):
             nn.Dropout(self.dropout),
             nn.ReLU(),
             nn.Linear(self.hidden_size, self.ntargets),
-            nn.Sigmoid()
+            # nn.Sigmoid()
         ]
 
         self.mlp = nn.Sequential(*layers)
