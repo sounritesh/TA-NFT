@@ -128,16 +128,27 @@ def run_training(params, save_model=False):
     return best_loss
 
 def objective(trial):
-    params = {
-        'hidden_size': trial.suggest_int('hidden_size', 18, 768),
-        'dropout': trial.suggest_uniform('dropout', 0.1, 0.7),
-        'lr': trial.suggest_loguniform('lr', 1e-5, 1e-2),
-        # 'bert_path': args.bert_path,
-        'lstm_hidden_size': trial.suggest_int('lstm_hidden_size', 18, 768),
-        'input_size': 768,
-        'ntargets': 1,
-        'device': DEVICE
-    }
+    if args.model =='lstm':
+        params = {
+            'hidden_size': trial.suggest_int('hidden_size', 18, 768),
+            'dropout': trial.suggest_uniform('dropout', 0.1, 0.7),
+            'lr': trial.suggest_loguniform('lr', 1e-5, 1e-2),
+            # 'bert_path': args.bert_path,
+            'lstm_hidden_size': trial.suggest_int('lstm_hidden_size', 18, 768),
+            'input_size': 768,
+            'ntargets': 1,
+            'device': DEVICE
+        }
+    else:
+        params = {
+            'hidden_size': trial.suggest_int('hidden_size', 18, 768),
+            'dropout': trial.suggest_uniform('dropout', 0.1, 0.7),
+            'lr': trial.suggest_loguniform('lr', 1e-5, 1e-2),
+            # 'bert_path': args.bert_path,
+            'input_size': 768,
+            'ntargets': 1,
+            'device': DEVICE
+        }
     return run_training(params, False)
 
 def main():

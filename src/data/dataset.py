@@ -37,7 +37,7 @@ class NFTPriceDataset(Dataset):
         if len(tweets_tmp) >= self.lookback:
             tweets_tmp = tweets_tmp[:self.lookback]
             imp_w = tweets_tmp.LikeCount.values # have to modify this
-            ts_w = ((np.datetime64(dt) - tweets_tmp['Datetime'].values).astype(float)*1e-9)/60
+            ts_w = 1/(((np.datetime64(dt) - tweets_tmp['Datetime'].values).astype(float)*1e-9)/3600)
             for i, row in tweets_tmp.iterrows():
                 encs.append(self.encodings[row['Unnamed: 0']])
         else:
@@ -49,7 +49,7 @@ class NFTPriceDataset(Dataset):
 
             tweets_tmp = tweets_tmp[:self.lookback]
             imp_w = tweets_tmp.LikeCount.values # have to modify this
-            ts_w = ((np.datetime64(dt) - tweets_tmp['Datetime'].values).astype(float)*1e-9)/60
+            ts_w = 1/(((np.datetime64(dt) - tweets_tmp['Datetime'].values).astype(float)*1e-9)/3600)
             for i, row in tweets_tmp.iterrows():
                 encs.append(self.encodings[row['Unnamed: 0']])
 
