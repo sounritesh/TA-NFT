@@ -52,14 +52,14 @@ class Engine:
             for data in tqdm(data_loader, total=len(data_loader)):
                 inputs = data['encs'].to(self.device)
                 timestamps = data['ts_w'].to(self.device) 
-                targets = data['price_og'].to(self.device)
+                targets = data['price'].to(self.device)
 
                 if self.model_type == 'tlstm':
                     outputs = self.model(inputs, timestamps).squeeze(1)
                 else:
                     outputs = self.model(inputs).squeeze(1)
 
-                outputs = self.scaler.inverse_transform(outputs)
+                # outputs = self.scaler.inverse_transform(outputs)
                 loss = self.mse_loss(targets, outputs)
 
                 final_loss += loss.item()
