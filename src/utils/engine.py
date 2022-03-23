@@ -12,7 +12,8 @@ class Engine:
 
     @staticmethod
     def loss_fn(targets, outputs):
-        return nn.BCELoss()(outputs, targets)
+        # return nn.BCELoss()(outputs, targets)
+        return nn.MSELoss()(outputs, targets)
 
     @staticmethod
     def mse_loss(targets, outputs):
