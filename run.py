@@ -47,6 +47,9 @@ torch.manual_seed(args.seed)
 def run_training(params, save_model=False):
     encodings = np.load(os.path.join(args.data_dir, "tweet_encodings.npy"))
 
+    tweets_ds = pd.read_csv(os.path.join(args.data_dir, "tweets.csv"))
+    tweets_ds['Datetime'] = pd.to_datetime(tweets_ds['Datetime']).dt.tz_localize(None)
+    
     if args.classification:
         prices_ds = pd.read_csv(os.path.join(args.data_dir, "price_movement.csv"))
         prices_ds = prices_ds[prices_ds['label']!=2]
@@ -72,9 +75,6 @@ def run_training(params, save_model=False):
 
         train_ds = NFTPriceDataset(prices_train, tweets_ds, encodings, args.lookback)
         val_ds = NFTPriceDataset(prices_test, tweets_ds, encodings, args.lookback)
-
-    tweets_ds = pd.read_csv(os.path.join(args.data_dir, "tweets.csv"))
-    tweets_ds['Datetime'] = pd.to_datetime(tweets_ds['Datetime']).dt.tz_localize(None)
 
     
     train_dl = DataLoader(train_ds, batch_size=args.train_batch_size, shuffle=True)
