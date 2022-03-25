@@ -55,7 +55,7 @@ def run_training(params, save_model=False):
         prices_ds = prices_ds[prices_ds['label']!=2]
         prices_ds['block_timestamp'] = pd.to_datetime(prices_ds['block_timestamp'])
 
-        prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
+        prices_train = prices_ds.sample(frac=0.95, random_state=args.seed)
         prices_test = prices_ds.drop(prices_train.index)
 
         train_ds = NFTMovementDataset(prices_train, tweets_ds, encodings, args.lookback)
