@@ -23,6 +23,9 @@ class TimeLSTM_MLP(nn.Module):
             # nn.Sigmoid()
         ]
 
+        if params['classification']:
+            layers.append(nn.Sigmoid())
+
         # for i in range(num_layers):
         #   layers.append(nn.Linear(hidden_size, hidden_size))
         #   layers.append(nn.Dropout(dropout))
@@ -58,6 +61,9 @@ class LSTM_MLP(nn.Module):
             nn.Linear(self.hidden_size, self.ntargets),
             # nn.Sigmoid()
         ]
+
+        if params['classification']:
+            layers.append(nn.Sigmoid())
 
         # for i in range(num_layers):
         #   layers.append(nn.Linear(hidden_size, hidden_size))
@@ -105,7 +111,10 @@ class MLP(nn.Module):
             nn.Linear(self.hidden_size, self.ntargets),
             # nn.Sigmoid()
         ]
-
+        
+        if params['classification']:
+            layers.append(nn.Sigmoid())
+        
         self.mlp = nn.Sequential(*layers)
 
     def forward(self, x):

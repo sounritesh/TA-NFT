@@ -7,7 +7,7 @@ import pandas as pd
 import random
 import os
 
-from src.data.dataset import NFTPriceDataset
+from src.data.dataset import NFTPriceDataset, NFTMovementDataset
 from src.utils.engine import Engine
 import src.model.model as model_pkg
 from src.utils.config import DEVICE, UTC
@@ -24,6 +24,7 @@ parser.add_argument("--lr", type=float, default=1e-4, help="Specifies the learni
 parser.add_argument("--dropout", type=float, default=0.3, help="Specifies the dropout for BERT output")
 
 parser.add_argument("--tune", action="store_true", help="To tune model by trying different hyperparams")
+parser.add_argument("--classification", action="store_true", help="To specify whether it is a classification or regression problem")
 
 parser.add_argument("--output_dir", type=str, help="Path to output directory for saving model checkpoints")
 
@@ -46,23 +47,36 @@ torch.manual_seed(args.seed)
 def run_training(params, save_model=False):
     encodings = np.load(os.path.join(args.data_dir, "tweet_encodings.npy"))
 
-    prices_ds = pd.read_csv(os.path.join(args.data_dir, "avg_price.csv"))
-    prices_ds['ts'] = pd.to_datetime(prices_ds['ts'])
+    if args.classification:
+        prices_ds = pd.read_csv(os.path.join(args.data_dir, "price_movement.csv"))
+        prices_ds = prices_ds[prices_ds['label']!=2]
+        prices_ds['block_timestamp'] = pd.to_datetime(prices_ds['block_timestamp'])
 
-    prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
-    prices_test = prices_ds.drop(prices_train.index)
-  
-    target_scaler = MinMaxScaler(prices_train['mean'].values, DEVICE)
+        prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
+        prices_test = prices_ds.drop(prices_train.index)
 
-    prices_train['mean_norm'] = target_scaler.transform(prices_train['mean'].values).cpu().numpy()
-    prices_test['mean_norm'] = target_scaler.transform(prices_test['mean'].values).cpu().numpy()
+        train_ds = NFTMovementDataset(prices_train, tweets_ds, encodings, args.lookback)
+        val_ds = NFTMovementDataset(prices_test, tweets_ds, encodings, args.lookback)
+        
+    else:
+        prices_ds = pd.read_csv(os.path.join(args.data_dir, "avg_price.csv"))
+        prices_ds['ts'] = pd.to_datetime(prices_ds['ts'])
+
+        prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
+        prices_test = prices_ds.drop(prices_train.index)
+    
+        target_scaler = MinMaxScaler(prices_train['mean'].values, DEVICE)
+
+        prices_train['mean_norm'] = target_scaler.transform(prices_train['mean'].values).cpu().numpy()
+        prices_test['mean_norm'] = target_scaler.transform(prices_test['mean'].values).cpu().numpy()
+
+        train_ds = NFTPriceDataset(prices_train, tweets_ds, encodings, args.lookback)
+        val_ds = NFTPriceDataset(prices_test, tweets_ds, encodings, args.lookback)
 
     tweets_ds = pd.read_csv(os.path.join(args.data_dir, "tweets.csv"))
     tweets_ds['Datetime'] = pd.to_datetime(tweets_ds['Datetime']).dt.tz_localize(None)
 
-    train_ds = NFTPriceDataset(prices_train, tweets_ds, encodings, args.lookback)
-    val_ds = NFTPriceDataset(prices_test, tweets_ds, encodings, args.lookback)
-
+    
     train_dl = DataLoader(train_ds, batch_size=args.train_batch_size, shuffle=True)
     val_dl = DataLoader(val_ds, batch_size=args.val_batch_size, shuffle=True)
 
@@ -99,7 +113,10 @@ def run_training(params, save_model=False):
         gamma=0.5
     )
 
-    eng = Engine(model, optimizer, DEVICE, args.model, target_scaler)
+    if args.classification:
+        eng = Engine(model, optimizer, DEVICE, args.model, classification=args.classification)
+    else:
+        eng = Engine(model, optimizer, DEVICE, args.model, target_scaler)
 
     best_loss = np.inf
 
@@ -137,7 +154,8 @@ def objective(trial):
             'lstm_hidden_size': trial.suggest_int('lstm_hidden_size', 18, 768),
             'input_size': 768,
             'ntargets': 1,
-            'device': DEVICE
+            'device': DEVICE,
+            'classification': args.classification
         }
     else:
         params = {
@@ -147,7 +165,8 @@ def objective(trial):
             # 'bert_path': args.bert_path,
             'input_size': 768,
             'ntargets': 1,
-            'device': DEVICE
+            'device': DEVICE,
+            'classification': args.classification
         }
     return run_training(params, False)
 
@@ -170,7 +189,8 @@ def main():
             'ntargets': 1,
             'hidden_size': args.hidden_size,
             'lstm_hidden_size': args.lstm_hidden_size,
-            'device': DEVICE
+            'device': DEVICE,
+            'classification': args.classification
         }
 
         run_training(params)
