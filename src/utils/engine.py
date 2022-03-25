@@ -34,7 +34,10 @@ class Engine:
             self.optimizer.zero_grad()
             inputs = data['encs'].to(self.device)
             timestamps = data['ts_w'].to(self.device) 
-            targets = data['price'].to(self.device)
+            if self.classification:
+                targets = data['target'].to(self.device)
+            else:
+                targets = data['price'].to(self.device)
             
             # print(inputs.size(), timestamps.size(), targets.size())
 
@@ -77,7 +80,10 @@ class Engine:
             for data in tqdm(data_loader, total=len(data_loader)):
                 inputs = data['encs'].to(self.device)
                 timestamps = data['ts_w'].to(self.device) 
-                targets = data['price'].to(self.device)
+                if self.classification:
+                    targets = data['target'].to(self.device)
+                else:
+                    targets = data['price'].to(self.device)
 
                 if self.model_type == 'tlstm':
                     outputs = self.model(inputs, timestamps)
