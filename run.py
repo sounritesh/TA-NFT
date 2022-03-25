@@ -49,7 +49,7 @@ def run_training(params, save_model=False):
 
     tweets_ds = pd.read_csv(os.path.join(args.data_dir, "tweets.csv"))
     tweets_ds['Datetime'] = pd.to_datetime(tweets_ds['Datetime']).dt.tz_localize(None)
-    
+
     if args.classification:
         prices_ds = pd.read_csv(os.path.join(args.data_dir, "price_movement.csv"))
         prices_ds = prices_ds[prices_ds['label']!=2]
@@ -124,8 +124,8 @@ def run_training(params, save_model=False):
     early_stopping_counter = 0
 
     for epoch in range(args.epochs):
-        train_loss = eng.train(train_dl)
-        valid_loss = eng.evaluate(val_dl)
+        train_loss, train_metrics = eng.train(train_dl)
+        valid_loss, val_metrics = eng.evaluate(val_dl)
 
         if valid_loss < best_loss:
             best_loss = valid_loss
@@ -141,6 +141,7 @@ def run_training(params, save_model=False):
         scheduler.step()
 
         print(f"Epoch: {epoch+1}, Train Loss: {train_loss}, Valid Loss: {valid_loss}, Best Loss: {best_loss}")
+        print(f"Epoch: {epoch+1}, Train Metrics: {train_metrics}, Valid Metric: {val_metrics}")
 
     return best_loss
 

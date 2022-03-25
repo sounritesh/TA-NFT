@@ -1,6 +1,9 @@
 import torch.nn as nn
 import torch
 from tqdm import tqdm
+import numpy as np
+
+from src.utils.metric import classification_report
 
 class Engine:
     def __init__(self, model, optimizer, device, model_type, scaler=None, classification=False):
@@ -23,6 +26,10 @@ class Engine:
     def train(self, data_loader):
         self.model.train()
         final_loss = 0
+        final_prec = 0
+        final_recall = 0
+        final_fscore = 0
+        final_mcc = 0
         for data in tqdm(data_loader, total=len(data_loader)):
             self.optimizer.zero_grad()
             inputs = data['encs'].to(self.device)
@@ -32,16 +39,15 @@ class Engine:
             # print(inputs.size(), timestamps.size(), targets.size())
 
             if self.model_type == 'tlstm':
-                outputs = self.model(inputs, timestamps)
+                outputs = self.model(inputs, timestamps).squeeze(1)
             else:
-                outputs = self.model(inputs)
+                outputs = self.model(inputs).squeeze(1)
 
             # outputs = self.scaler.inverse_transform(outputs)
-            print(outputs.shape)
             if self.classification:
-                loss = self.loss_fn(targets, outputs.squeeze(1))
+                loss = self.loss_fn(targets, outputs)
             else:
-                loss = self.mse_loss(targets, outputs.squeeze(1))
+                loss = self.mse_loss(targets, outputs)
 
             # print(loss.shape)
             loss.backward()
@@ -49,11 +55,24 @@ class Engine:
 
             final_loss += loss.item()
 
-        return (final_loss/len(data_loader))
+            if self.classification:
+                prec, recall, fscore, mcc = classification_report(targets, outputs)
+                final_prec += prec
+                final_recall += recall
+                final_fscore += fscore
+                final_mcc += mcc
+
+        return final_loss/len(data_loader), np.array([final_prec, final_recall, final_fscore, final_mcc])/len(data_loader)
 
     def evaluate(self, data_loader):
         self.model.eval()
         final_loss = 0
+        metric = 0
+        final_loss = 0
+        final_prec = 0
+        final_recall = 0
+        final_fscore = 0
+        final_mcc = 0
         with torch.no_grad():
             for data in tqdm(data_loader, total=len(data_loader)):
                 inputs = data['encs'].to(self.device)
@@ -67,10 +86,17 @@ class Engine:
 
                 # outputs = self.scaler.inverse_transform(outputs)
                 if self.classification:
-                    loss = self.loss_fn(targets, outputs.squeeze(1))
+                    loss = self.loss_fn(targets, outputs)
                 else:
-                    loss = self.mse_loss(targets, outputs.squeeze(1))
+                    loss = self.mse_loss(targets, outputs)
 
                 final_loss += loss.item()
 
-        return (final_loss/len(data_loader)),
+                if self.classification:
+                    prec, recall, fscore, mcc = classification_report(targets, outputs)
+                    final_prec += prec
+                    final_recall += recall
+                    final_fscore += fscore
+                    final_mcc += mcc
+
+        return final_loss/len(data_loader), np.array([final_prec, final_recall, final_fscore, final_mcc])/len(data_loader)
