@@ -90,9 +90,9 @@ class Engine:
                     targets = data['price'].to(self.device)
 
                 if self.model_type == 'tlstm':
-                    outputs = self.model(inputs, timestamps)
+                    outputs = self.model(inputs, timestamps).squeeze(1)
                 else:
-                    outputs = self.model(inputs)
+                    outputs = self.model(inputs).squeeze(1)
 
                 # outputs = self.scaler.inverse_transform(outputs)
                 if self.classification:
