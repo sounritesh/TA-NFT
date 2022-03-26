@@ -67,9 +67,9 @@ class Engine:
                 final_mcc += mcc
                 final_acc += acc
 
-                print(f"Precision: {prec}; Recall: {recall}; F1-score: {fscore}; MCC: {mcc}; Accuracy: {acc};")
+                # print(f"Precision: {prec}; Recall: {recall}; F1-score: {fscore}; MCC: {mcc}; Accuracy: {acc};")
 
-        return final_loss/len(data_loader), np.array([final_prec, final_recall, final_fscore, final_mcc, final_acc])/len(data_loader)
+        return final_loss/len(data_loader), ([final_prec, final_recall, final_fscore, final_mcc, final_acc])/len(data_loader)
 
     def evaluate(self, data_loader):
         self.model.eval()
@@ -110,6 +110,6 @@ class Engine:
                     final_mcc += mcc
                     final_acc += acc
 
-                    print(f"Precision: {prec}; Recall: {recall}; F1-score: {fscore}; MCC: {mcc}; Accuracy: {acc};")
+                    # print(f"Precision: {prec}; Recall: {recall}; F1-score: {fscore}; MCC: {mcc}; Accuracy: {acc};")
 
         return final_loss/len(data_loader), np.array([final_prec, final_recall, final_fscore, final_mcc, final_acc])/len(data_loader)

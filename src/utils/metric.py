@@ -4,7 +4,7 @@ def classification_report(targets, outputs):
     targets = targets.cpu().detach().numpy()
     outputs = outputs.cpu().detach().numpy() >= 0.5
     
-    prec, recall, fscore, _ = precision_recall_fscore_support(targets, outputs)
+    prec, recall, fscore, _ = precision_recall_fscore_support(targets, outputs, average='macro')
     mcc = matthews_corrcoef(targets, outputs)
     acc = accuracy_score(targets, outputs)
     
