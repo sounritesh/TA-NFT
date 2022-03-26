@@ -91,20 +91,20 @@ class NFTMovementDataset(Dataset):
 
         imp_w = None
         ts_w = None
-        encs = []
+        encs = np.empty((0, 768), float)
 
         if len(tweets_tmp) >= self.lookback:
             tweets_tmp = tweets_tmp[:self.lookback]
             imp_w = tweets_tmp.LikeCount.values # have to modify this
             ts_w = 1/(((np.datetime64(dt) - tweets_tmp['Datetime'].values).astype(float)*1e-9)/3600)
             for i, row in tweets_tmp.iterrows():
-                encs.append(self.encodings[row['Unnamed: 0']])
+                np.append(encs, self.encodings[row['Unnamed: 0']].reshape(1, -1), axis=0)
         elif len(tweets_tmp) == 0:
             imp_w = [0]*self.lookback
             ts_w = [0]*self.lookback
             encs = [[0]*768]*self.lookback
 
-            print(project, dt, target, "No tweets for trans")
+            # print(project, dt, target, "No tweets for trans")
         else:
             pad_len = self.lookback - len(tweets_tmp)
             con_list = [tweets_tmp]
@@ -116,7 +116,7 @@ class NFTMovementDataset(Dataset):
             imp_w = tweets_tmp.LikeCount.values # have to modify this
             ts_w = 1/(((np.datetime64(dt) - tweets_tmp['Datetime'].values).astype(float)*1e-9)/3600)
             for i, row in tweets_tmp.iterrows():
-                encs.append(self.encodings[row['Unnamed: 0']])
+                np.append(encs, self.encodings[row['Unnamed: 0']].reshape(1, -1), axis=0)
 
         
         return {
