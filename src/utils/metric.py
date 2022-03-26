@@ -1,5 +1,4 @@
-from sklearn.metrics import precision_recall_fscore_support
-from sklearn.metrics import matthews_corrcoef
+from sklearn.metrics import precision_recall_fscore_support, matthews_corrcoef, accuracy_score
 
 def classification_report(targets, outputs):
     targets = targets.cpu().detach().numpy()
@@ -7,5 +6,6 @@ def classification_report(targets, outputs):
     
     prec, recall, fscore, _ = precision_recall_fscore_support(targets, outputs)
     mcc = matthews_corrcoef(targets, outputs)
+    acc = accuracy_score(targets, outputs)
     
-    return prec, recall, fscore, mcc 
+    return prec, recall, fscore, mcc, acc 

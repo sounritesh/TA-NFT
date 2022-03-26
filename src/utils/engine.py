@@ -30,6 +30,7 @@ class Engine:
         final_recall = 0
         final_fscore = 0
         final_mcc = 0
+        final_acc = 0
         for data in tqdm(data_loader, total=len(data_loader)):
             self.optimizer.zero_grad()
             inputs = data['encs'].to(self.device)
@@ -59,23 +60,26 @@ class Engine:
             final_loss += loss.item()
 
             if self.classification:
-                prec, recall, fscore, mcc = classification_report(targets, outputs)
+                prec, recall, fscore, mcc, acc = classification_report(targets, outputs)
                 final_prec += prec
                 final_recall += recall
                 final_fscore += fscore
                 final_mcc += mcc
+                final_acc += acc
 
-        return final_loss/len(data_loader), np.array([final_prec, final_recall, final_fscore, final_mcc])/len(data_loader)
+                print(f"Precision: {prec}; Recall: {recall}; F1-score: {fscore}; MCC: {mcc}; Accuracy: {acc};")
+
+        return final_loss/len(data_loader), np.array([final_prec, final_recall, final_fscore, final_mcc, final_acc])/len(data_loader)
 
     def evaluate(self, data_loader):
         self.model.eval()
         final_loss = 0
-        metric = 0
         final_loss = 0
         final_prec = 0
         final_recall = 0
         final_fscore = 0
         final_mcc = 0
+        final_acc = 0
         with torch.no_grad():
             for data in tqdm(data_loader, total=len(data_loader)):
                 inputs = data['encs'].to(self.device)
@@ -99,10 +103,13 @@ class Engine:
                 final_loss += loss.item()
 
                 if self.classification:
-                    prec, recall, fscore, mcc = classification_report(targets, outputs)
+                    prec, recall, fscore, mcc, acc = classification_report(targets, outputs)
                     final_prec += prec
                     final_recall += recall
                     final_fscore += fscore
                     final_mcc += mcc
+                    final_acc += acc
 
-        return final_loss/len(data_loader), np.array([final_prec, final_recall, final_fscore, final_mcc])/len(data_loader)
+                    print(f"Precision: {prec}; Recall: {recall}; F1-score: {fscore}; MCC: {mcc}; Accuracy: {acc};")
+
+        return final_loss/len(data_loader), np.array([final_prec, final_recall, final_fscore, final_mcc, final_acc])/len(data_loader)
