@@ -2,6 +2,83 @@ import torch.nn as nn
 import torch
 
 from src.model.rnn import TimeLSTM
+from src.model.attention import AttentionHawkes
+
+class HYPHEN(nn.Module):
+    def __init__(
+        self,
+        input_size,
+        hidden_size,
+        bs,
+        attn_type="hawkes",
+        do_hyp_lstm=False,
+        learnable_curvature=False,
+        init_curvature_val=0.0,
+        n_class=2,
+        time_param=True,
+    ):
+        if attn_type not in ["vanilla", "hawkes", "hyp_hawkes"]:
+            raise ValueError(" Attn not of correct type")
+        super().__init__()
+        # self.hyp_lstm = TimeLSTMHyp(input_size, hidden_size)
+        self.time_lstm = TimeLSTM(input_size, hidden_size)
+        self.linear1 = nn.Linear(hidden_size, hidden_size)
+        self.linear2 = nn.Linear(hidden_size, n_class)
+        self.dropout = nn.Dropout(0.3)
+        self.do_hyp_lstm = do_hyp_lstm
+        self.time_param = time_param
+        if learnable_curvature:
+            # print("Init")
+            self.c = torch.nn.Parameter(torch.tensor([init_curvature_val]).to("cuda"))
+            # self.c =
+        else:
+            self.c = torch.FloatTensor([init_curvature_val]).to("cuda")
+        self.attn_type = attn_type
+        self.hidden_size = hidden_size
+        # if attn_type == "hawkes":
+        self.attention = AttentionHawkes(
+            hidden_size, bs
+        )  # Hawkes and temporal attn
+        # elif attn_type == "hyp_hawkes":
+        #     self.attention = HypHawkes(
+        #         hidden_size, bs, c=self.c
+        #     )  # Hawkes and temporal attn
+        # else:
+        #     self.attention = Attention(hidden_size)
+        # self.cell_source = MobiusGRU(hidden_size, hidden_size, 1, k=self.c).to("cuda")
+        self.normal_gru = nn.GRU(hidden_size, hidden_size, 1)
+
+    def init_hidden(self, bs):
+        h = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to("cuda")
+        c = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to("cuda")
+
+        return (h, c)
+
+    def forward(self, inputs, timestamps, timestamps_inv):
+        bs = inputs.shape[0]
+        h_init, c_init = self.init_hidden(bs)
+        if not self.time_param:
+            shape = timestamps_inv.shape
+            timestamps_inv = torch.ones(shape).to("cuda")
+            timestamps = torch.zeros(shape).to("cuda")
+
+        output, (_, _) = self.time_lstm(inputs, timestamps_inv)
+        context, output = self.normal_gru(output.permute(1, 0, 2))
+
+        output = output.permute(1, 0, 2)
+        context = context.permute(1, 0, 2)
+
+        output_fin, _ = self.attention(output, context, timestamps, self.c)
+
+        output_fin = output_fin.permute(1, 0, 2)
+        output_fin = output_fin.squeeze(0)
+
+        output_fin = self.linear1(output_fin)
+        output_fin = nn.relu(output_fin)
+        output_fin = self.dropout(output_fin)
+        output_fin = self.linear2(output_fin)
+        return output_fin
+
 
 class TimeLSTM_MLP(nn.Module):
     def __init__(self, params):

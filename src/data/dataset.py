@@ -91,12 +91,14 @@ class NFTMovementDataset(Dataset):
 
         imp_w = None
         ts_w = None
+        ts_inv = None
         encs = []
 
         if len(tweets_tmp) >= self.lookback:
             tweets_tmp = tweets_tmp[:self.lookback]
             imp_w = tweets_tmp.LikeCount.values # have to modify this
-            ts_w = 1/(((np.datetime64(dt) - tweets_tmp['Datetime'].values).astype(float)*1e-9)/3600)
+            ts_w = ((np.datetime64(dt) - tweets_tmp['Datetime'].values).astype(float)*1e-9)/3600
+            ts_inv = 1/ts_w
             for i, row in tweets_tmp.iterrows():
                 encs.append(self.encodings[row['Unnamed: 0']])
         elif len(tweets_tmp) == 0:
