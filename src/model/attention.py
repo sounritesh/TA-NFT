@@ -20,29 +20,22 @@ class AttentionHawkes(torch.nn.Module):
 
     def forward(self, query, context, delta_t, c=1.0):
         batch_size, output_len, dimensions = query.size()
-        print(batch_size, output_len, dimensions)
         query_len = context.size(1)
         if self.attention_type == "general":
             query = query.reshape(batch_size * output_len, dimensions)
             query = self.linear_in(query)
             query = query.reshape(batch_size, output_len, dimensions)
 
-        print(query.shape)
         attention_scores = torch.bmm(query, context.transpose(1, 2).contiguous())
 
-        print(attention_scores.shape)
 
         # Compute weights across every context sequence
         attention_scores = attention_scores.view(batch_size * output_len, query_len)
         attention_weights = self.softmax(attention_scores)
         attention_weights = attention_weights.view(batch_size, output_len, query_len)
-        print(attention_weights.shape)
 
         mix = attention_weights * (context.permute(0, 2, 1))
-        print(mix.shape)
-        print(f"Delta t shape: {delta_t.shape}")
-        bt = torch.exp(-1 * self.ab * delta_t)
-        print(f"BT shape: {bt.shape}")
+        bt = torch.exp(-1 * self.ab * delta_t.reshape(batch_size, query_len,  1))
         term_2 = nn.ReLU()(self.ae * mix * bt)
         mix = torch.sum(term_2 + mix, -1).unsqueeze(1)
         combined = torch.cat((mix, query), dim=2)

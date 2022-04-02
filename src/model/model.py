@@ -37,9 +37,7 @@ class TLSTM_Hawkes(nn.Module):
         h_init, c_init = self.init_hidden(bs)
 
         output = self.time_lstm(inputs, timestamps_inv)
-        print(f"TLSTM out: {output.shape}")
         context, output = self.normal_gru(output.permute(1, 0, 2))
-        print(f"GRU out: {context.shape}, {output.shape}")
 
         output = output.permute(1, 0, 2)
         context = context.permute(1, 0, 2)
