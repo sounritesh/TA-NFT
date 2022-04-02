@@ -40,6 +40,7 @@ class AttentionHawkes(torch.nn.Module):
 
         mix = attention_weights * (context.permute(0, 2, 1))
         print(mix.shape)
+        print(f"Delta t shape: {delta_t.shape}")
         bt = torch.exp(-1 * self.ab * delta_t)
         print(f"BT shape: {bt.shape}")
         term_2 = nn.ReLU()(self.ae * mix * bt)
