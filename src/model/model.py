@@ -48,7 +48,7 @@ class TLSTM_Hawkes(nn.Module):
         output_fin = output_fin.squeeze(0)
 
         output_fin = self.linear1(output_fin)
-        output_fin = nn.relu(output_fin)
+        output_fin = nn.ReLU()(output_fin)
         output_fin = self.dropout(output_fin)
         output_fin = self.linear2(output_fin)
         return output_fin
@@ -96,7 +96,7 @@ class RTLSTM_Hawkes(nn.Module):
         output_fin = output_fin.squeeze(0)
 
         output_fin = self.linear1(output_fin)
-        output_fin = nn.relu(output_fin)
+        output_fin = nn.ReLU()(output_fin)
         output_fin = self.dropout(output_fin)
         output_fin = self.linear2(output_fin)
         return output_fin
