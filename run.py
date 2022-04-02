@@ -84,8 +84,8 @@ def run_training(params, save_model=False):
         val_ds = NFTPriceDataset(prices_test, tweets_ds, encodings, args.lookback)
 
     
-    train_dl = DataLoader(train_ds, batch_size=args.train_batch_size, shuffle=True)
-    val_dl = DataLoader(val_ds, batch_size=args.val_batch_size, shuffle=True)
+    train_dl = DataLoader(train_ds, batch_size=args.train_batch_size, shuffle=True, drop_last=True)
+    val_dl = DataLoader(val_ds, batch_size=args.val_batch_size, shuffle=True, drop_last=True)
 
     if args.model == 'mlp':
         model = model_pkg.MLP(params)
