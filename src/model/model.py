@@ -42,7 +42,7 @@ class TLSTM_Hawkes(nn.Module):
         output = output.permute(1, 0, 2)
         context = context.permute(1, 0, 2)
 
-        output_fin, attention_weights = self.attention(output, context, timestamps, self.c)
+        output_fin, attention_weights = self.attention(output, context, timestamps)
 
         output_fin = output_fin.permute(1, 0, 2)
         output_fin = output_fin.squeeze(0)
@@ -90,7 +90,7 @@ class RTLSTM_Hawkes(nn.Module):
         output = output.permute(1, 0, 2)
         context = context.permute(1, 0, 2)
 
-        output_fin, attention_weights = self.attention(output, context, timestamps, self.c)
+        output_fin, attention_weights = self.attention(output, context, timestamps)
 
         output_fin = output_fin.permute(1, 0, 2)
         output_fin = output_fin.squeeze(0)
