@@ -35,6 +35,9 @@ class Engine:
             self.optimizer.zero_grad()
             inputs = data['encs'].to(self.device)
             timestamps = data['ts_w'].to(self.device) 
+            timestamps_inv = data['ts_inv'].to(self.device)
+            reach_weights = data['imp_w'].to(self.device)
+
             if self.classification:
                 targets = data['target'].to(self.device)
             else:
@@ -43,7 +46,11 @@ class Engine:
             # print(inputs.size(), timestamps.size(), targets.size())
 
             if self.model_type == 'tlstm':
-                outputs = self.model(inputs, timestamps).squeeze(1)
+                outputs = self.model(inputs, timestamps_inv).squeeze(1)
+            elif self.model_type == 'tlstm_hawkes':
+                outputs = self.model(inputs, timestamps, timestamps_inv).squeeze(1)
+            elif self.model_type == 'rtlstm_hawkes':
+                outputs = self.model(inputs, timestamps, timestamps_inv, reach_weights).squeeze(1)
             else:
                 outputs = self.model(inputs).squeeze(1)
 
@@ -84,6 +91,9 @@ class Engine:
             for data in tqdm(data_loader, total=len(data_loader)):
                 inputs = data['encs'].to(self.device)
                 timestamps = data['ts_w'].to(self.device) 
+                timestamps_inv = data['ts_inv'].to(self.device)
+                reach_weights = data['imp_w'].to(self.device)
+
                 if self.classification:
                     targets = data['target'].to(self.device)
                 else:
@@ -91,6 +101,10 @@ class Engine:
 
                 if self.model_type == 'tlstm':
                     outputs = self.model(inputs, timestamps).squeeze(1)
+                elif self.model_type == 'tlstm_hawkes':
+                    outputs = self.model(inputs, timestamps, timestamps_inv).squeeze(1)
+                elif self.model_type == 'rtlstm_hawkes':
+                    outputs = self.model(inputs, timestamps, timestamps_inv, reach_weights).squeeze(1)
                 else:
                     outputs = self.model(inputs).squeeze(1)
 

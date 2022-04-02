@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import random
 import os
+from sklearn import preprocessing
 
 from src.data.dataset import NFTPriceDataset, NFTMovementDataset
 from src.utils.engine import Engine
@@ -49,6 +50,11 @@ def run_training(params, save_model=False):
 
     tweets_ds = pd.read_csv(os.path.join(args.data_dir, "tweets.csv"))
     tweets_ds['Datetime'] = pd.to_datetime(tweets_ds['Datetime']).dt.tz_localize(None)
+    tweet_scaler1 = MinMaxScaler(tweets_ds['LikeCount'].values, DEVICE)
+    tweet_scaler2 = MinMaxScaler(tweets_ds['RetweetCount'].values, DEVICE)
+
+    tweets_ds['LikeCount'] = tweet_scaler1.transform(tweets_ds['LikeCount'].values).cpu().numpy()
+    tweets_ds['RetweetCount'] = tweet_scaler2.transform(tweets_ds['RetweetCount'].values).cpu().numpy()
 
     if args.classification:
         prices_ds = pd.read_csv(os.path.join(args.data_dir, "price_movement.csv"))
@@ -87,6 +93,10 @@ def run_training(params, save_model=False):
         model = model_pkg.LSTM_MLP(params)
     elif args.model == 'tlstm':
         model = model_pkg.TimeLSTM_MLP(params)
+    elif args.model == 'tlstm_hawkes':
+        model = model_pkg.TLSTM_Hawkes(params, args.train_batch_size)
+    elif args.model == 'rtlstm_hawkes':
+        model = model_pkg.RTimeLSTM(params, args.train_batch_size)
 
     model.to(DEVICE)
 
