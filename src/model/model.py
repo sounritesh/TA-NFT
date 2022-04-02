@@ -36,7 +36,7 @@ class TLSTM_Hawkes(nn.Module):
         bs = inputs.shape[0]
         h_init, c_init = self.init_hidden(bs)
 
-        output, (_, _) = self.time_lstm(inputs, timestamps_inv)
+        output = self.time_lstm(inputs, timestamps_inv)
         context, output = self.normal_gru(output.permute(1, 0, 2))
 
         output = output.permute(1, 0, 2)
@@ -84,7 +84,7 @@ class RTLSTM_Hawkes(nn.Module):
         bs = inputs.shape[0]
         h_init, c_init = self.init_hidden(bs)
 
-        output, (_, _) = self.time_lstm(inputs, timestamps_inv, reach_weights)
+        output = self.time_lstm(inputs, timestamps_inv, reach_weights)
         context, output = self.normal_gru(output.permute(1, 0, 2))
 
         output = output.permute(1, 0, 2)
