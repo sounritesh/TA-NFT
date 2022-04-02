@@ -41,7 +41,7 @@ class AttentionHawkes(torch.nn.Module):
         mix = attention_weights * (context.permute(0, 2, 1))
         print(mix.shape)
         bt = torch.exp(-1 * self.ab * delta_t)
-        print(bt.shape)
+        print(f"BT shape: {bt.shape}")
         term_2 = nn.ReLU()(self.ae * mix * bt)
         mix = torch.sum(term_2 + mix, -1).unsqueeze(1)
         combined = torch.cat((mix, query), dim=2)
