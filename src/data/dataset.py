@@ -109,7 +109,7 @@ class NFTMovementDataset(Dataset):
                     imp_w.append(1e-2*(row.LikeCount + row.RetweetCount))
                 else:    
                     imp_w.append(row.polarity*(row.LikeCount + row.RetweetCount))
-            ts_w = ((np.datetime64(dt) - tweets_tmp['Datetime'].values).astype(float)*1e-9)/3600
+            ts_w = ((np.datetime64(dt) - tweets_tmp['Datetime'].values).astype(float)*1e-9)/86400
             ts_inv = 1/ts_w
             for i, row in tweets_tmp.iterrows():
                 encs.append(self.encodings[row['Unnamed: 0']])
@@ -128,7 +128,7 @@ class NFTMovementDataset(Dataset):
 
             tweets_tmp = tweets_tmp[:self.lookback]
             imp_w = tweets_tmp.LikeCount.values # have to modify this
-            ts_w = ((np.datetime64(dt) - tweets_tmp['Datetime'].values).astype(float)*1e-9)/3600
+            ts_w = ((np.datetime64(dt) - tweets_tmp['Datetime'].values).astype(float)*1e-9)/86400
             ts_inv = 1/ts_w
             for i, row in tweets_tmp.iterrows():
                 encs.append(self.encodings[row['Unnamed: 0']])

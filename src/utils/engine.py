@@ -100,7 +100,7 @@ class Engine:
                     targets = data['price'].to(self.device)
 
                 if self.model_type == 'tlstm':
-                    outputs = self.model(inputs, timestamps).squeeze(1)
+                    outputs = self.model(inputs, timestamps_inv).squeeze(1)
                 elif self.model_type == 'tlstm_hawkes':
                     outputs = self.model(inputs, timestamps, timestamps_inv).squeeze(1)
                 elif self.model_type == 'rtlstm_hawkes':
