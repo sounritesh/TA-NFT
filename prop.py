@@ -3,7 +3,7 @@ import pandas as pd
 import os
 from matplotlib import pyplot as plt
 from scipy import test
-from prop import Prophet
+from prophet import Prophet
 
 from sklearn import preprocessing
 from sklearn.metrics import mean_squared_error
