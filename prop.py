@@ -78,8 +78,8 @@ tweet_scaler2 = MinMaxScaler(tweets_ds['RetweetCount'].values, DEVICE)
 # tweets_ds['RetweetCount'] = tweet_scaler2.transform(tweets_ds['RetweetCount'].values).cpu().numpy()
 
 prices_ds = pd.read_csv(os.path.join(bigdata_folder, "avg_price.csv"))
-prices_ds['ts'] = pd.to_datetime(prices_ds['ts'])
-prices_ds = prices_ds.sort_values('ts')
+# prices_ds['ts'] = pd.to_datetime(prices_ds['ts'])
+# prices_ds = prices_ds.sort_values('ts')
 
 # test_size = int(0.15*prices_ds.shape[0])
 # prices_train = prices_ds[:-test_size]
