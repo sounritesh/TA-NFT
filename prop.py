@@ -3,9 +3,10 @@ import pandas as pd
 import os
 from matplotlib import pyplot as plt
 from scipy import test
-from prophet import Prophet
+from prop import Prophet
 
 from sklearn import preprocessing
+from sklearn.metrics import mean_squared_error
 
 from src.data.dataset import NFTPriceDataset, NFTMovementDataset
 from src.utils.engine import Engine
@@ -115,6 +116,8 @@ prophet_basic.fit(train_ds)
 forecast_data = prophet_basic.predict(val_ds)
 predicted = forecast_data["yhat"]
 
-se = np.square(predicted - actual_price)
-mse = np.mean(se)
+# se = np.square(predicted - actual_price)
+# mse = np.mean(se)
+
+mse = mean_squared_error(actual_price, predicted)
 print ("MSE: ",mse)
