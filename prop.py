@@ -81,9 +81,11 @@ prices_ds = pd.read_csv(os.path.join(bigdata_folder, "avg_price.csv"))
 prices_ds['ts'] = pd.to_datetime(prices_ds['ts'])
 prices_ds = prices_ds.sort_values('ts')
 
-test_size = int(0.15*prices_ds.shape[0])
-prices_train = prices_ds[:-test_size]
-prices_test = prices_ds[-test_size:]
+# test_size = int(0.15*prices_ds.shape[0])
+# prices_train = prices_ds[:-test_size]
+# prices_test = prices_ds[-test_size:]
+prices_train = prices_ds.sample(frac=0.85, random_state=seed)
+prices_test = prices_ds.drop(prices_train.index)
 
 target_scaler = MinMaxScaler(prices_train['mean'].values, DEVICE)
 
