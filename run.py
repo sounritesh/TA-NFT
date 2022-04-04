@@ -60,10 +60,15 @@ def run_training(params, save_model=False):
         prices_ds = pd.read_csv(os.path.join(args.data_dir, "price_movement.csv"))
         prices_ds = prices_ds[prices_ds['label']!=2]
         prices_ds['block_timestamp'] = pd.to_datetime(prices_ds['block_timestamp'])
+        prices_ds = prices_ds.sort_values('block_timestamp')
+
+        test_size = int(0.15*prices_ds.shape[0])
+        prices_train = prices_ds[:-test_size]
+        prices_test = prices_ds[-test_size:]
 
         # prices_ds = prices_ds.sample(frac=0.1)
-        prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
-        prices_test = prices_ds.drop(prices_train.index)
+        # prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
+        # prices_test = prices_ds.drop(prices_train.index)
 
         train_ds = NFTMovementDataset(prices_train, tweets_ds, encodings, args.lookback)
         val_ds = NFTMovementDataset(prices_test, tweets_ds, encodings, args.lookback)
@@ -71,9 +76,14 @@ def run_training(params, save_model=False):
     else:
         prices_ds = pd.read_csv(os.path.join(args.data_dir, "avg_price.csv"))
         prices_ds['ts'] = pd.to_datetime(prices_ds['ts'])
+        prices_ds = prices_ds.sort_values('ts')
 
-        prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
-        prices_test = prices_ds.drop(prices_train.index)
+        test_size = int(0.15*prices_ds.shape[0])
+        prices_train = prices_ds[:-test_size]
+        prices_test = prices_ds[-test_size:]
+
+        # prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
+        # prices_test = prices_ds.drop(prices_train.index)
     
         target_scaler = MinMaxScaler(prices_train['mean'].values, DEVICE)
 
