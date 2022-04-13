@@ -26,6 +26,7 @@ parser.add_argument("--dropout", type=float, default=0.3, help="Specifies the dr
 
 parser.add_argument("--tune", action="store_true", help="To tune model by trying different hyperparams")
 parser.add_argument("--classification", action="store_true", help="To specify whether it is a classification or regression problem")
+parser.add_argument("--zero_shot", action="store_true", help="To specify whether to train and evaluate for zero shot learning")
 
 parser.add_argument("--output_dir", type=str, help="Path to output directory for saving model checkpoints")
 
@@ -60,11 +61,18 @@ def run_training(params, save_model=False):
         prices_ds = pd.read_csv(os.path.join(args.data_dir, "price_movement.csv"))
         prices_ds = prices_ds[prices_ds['label']!=2]
         prices_ds['block_timestamp'] = pd.to_datetime(prices_ds['block_timestamp'])
-        prices_ds = prices_ds.sort_values('block_timestamp')
+
+        if args.zero_shot:
+            prices_ds = prices_ds.sort_values(['project', 'block_timestamp'])
+        else:
+            prices_ds = prices_ds.sort_values('block_timestamp')
+
 
         test_size = int(0.15*prices_ds.shape[0])
         prices_train = prices_ds[:-test_size]
         prices_test = prices_ds[-test_size:]
+
+        print(f"Train Set: {prices_train.project.unique()}\nTest Set: {prices_test.project.unique()}")
 
         # prices_ds = prices_ds.sample(frac=0.1)
         # prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
@@ -76,11 +84,17 @@ def run_training(params, save_model=False):
     else:
         prices_ds = pd.read_csv(os.path.join(args.data_dir, "avg_price.csv"))
         prices_ds['ts'] = pd.to_datetime(prices_ds['ts'])
-        prices_ds = prices_ds.sort_values('ts')
+
+        if args.zero_shot:
+            prices_ds = prices_ds.sort_values(['project', 'ts'])
+        else:
+            prices_ds = prices_ds.sort_values('ts')
 
         test_size = int(0.15*prices_ds.shape[0])
         prices_train = prices_ds[:-test_size]
         prices_test = prices_ds[-test_size:]
+
+        print(f"Train Set: {prices_train.project.unique()}\nTest Set: {prices_test.project.unique()}")
 
         # prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
         # prices_test = prices_ds.drop(prices_train.index)
