@@ -63,7 +63,7 @@ def run_training(params, save_model=False):
         prices_ds['block_timestamp'] = pd.to_datetime(prices_ds['block_timestamp'])
 
         if args.zero_shot:
-            prices_ds = prices_ds.sort_values(['project', 'block_timestamp'])
+            prices_ds = prices_ds.sort_values(['project', 'block_timestamp'], ascending=[False, True])
         else:
             prices_ds = prices_ds.sort_values('block_timestamp')
 
@@ -86,7 +86,7 @@ def run_training(params, save_model=False):
         prices_ds['ts'] = pd.to_datetime(prices_ds['ts'])
 
         if args.zero_shot:
-            prices_ds = prices_ds.sort_values(['project', 'ts'])
+            prices_ds = prices_ds.sort_values(['project', 'ts'], ascending=[False, True])
         else:
             prices_ds = prices_ds.sort_values('ts')
 
