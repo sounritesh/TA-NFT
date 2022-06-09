@@ -72,7 +72,10 @@ class TransformerEncoderLayer(nn.Module):
     def forward(self, src, timestamps, timestamps_inv, reach_weights) -> Tensor:
         #print("Timestamps inv: ", timestamps_inv.shape)
         #context = src * timestamps_inv.unsqueeze(dim=-1)
-        context = src * reach_weights.unsqueeze(dim=-1)
+        #print("Src:", torch.sum(src))
+        #print("RW:", torch.sum(reach_weights))
+        #context = src * reach_weights.unsqueeze(dim=-1)
+        context = src * timestamps_inv.unsqueeze(dim=-1)
         src = self.attention(src, context, timestamps)
-        print(torch.sum(src))
+        #print(torch.sum(src))
         return self.feed_forward(src)

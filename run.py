@@ -120,7 +120,7 @@ def run_training(params, save_model=False):
     elif args.model == 'tlstm_hawkes':
         model = model_pkg.TLSTM_Hawkes(params, args.train_batch_size)
     elif args.model == 'rtlstm_hawkes':
-        model = model_pkg.RTimeLSTM(params, args.train_batch_size)
+        model = model_pkg.RTLSTM_Hawkes(params, args.train_batch_size)
     elif args.model == 'transformer':
         model = model_pkg.TransformerEncoder(params, args.train_batch_size)
 

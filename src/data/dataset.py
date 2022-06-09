@@ -60,7 +60,7 @@ class NFTPriceDataset(Dataset):
             for i, row in tweets_tmp.iterrows():
                 encs.append(self.encodings[row['Unnamed: 0']])
 
-        
+        #print("Rw: ",np.sum(imp_w))
         return {
             'encs': torch.tensor(np.array(encs, dtype=np.float), dtype=torch.float),
             'ts_w': torch.tensor(ts_w, dtype=torch.float),

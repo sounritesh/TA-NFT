@@ -5,6 +5,8 @@ from torch import Tensor
 from src.model.rnn import TimeLSTM, RTimeLSTM
 from src.model.attention import AttentionHawkes
 from src.model.transformer import TransformerEncoderLayer, position_encoding
+from src.utils.config import DEVICE, UTC
+
 
 
 class TransformerEncoder(nn.Module):
@@ -38,7 +40,7 @@ class TransformerEncoder(nn.Module):
             src = layer(src, timestamps, timestamps_inv, reach_weights)
 
         #print("SRC: ", src.shape)
-        #print("Reach Weights: ", reach_weights.shape)
+        #print("Reach Weights: ", torch.sum(reach_weights))
         #print('Before sum: ', src.shape)
         src = torch.sum(src * timestamps_inv.unsqueeze(dim=-1), 1, keepdim=False)
         #print('After sum: ', src.shape)
@@ -68,8 +70,8 @@ class TLSTM_Hawkes(nn.Module):
         self.normal_gru = nn.GRU(self.hidden_size, self.hidden_size, 1)
 
     def init_hidden(self, bs):
-        h = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to("cuda")
-        c = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to("cuda")
+        h = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to(DEVICE)
+        c = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to(DEVICE)
 
         return (h, c)
 
@@ -103,6 +105,7 @@ class RTLSTM_Hawkes(nn.Module):
     ):
         super().__init__()
         # self.hyp_lstm = TimeLSTMHyp(input_size, hidden_size)
+        #print(params['input_size'])
         self.time_lstm = RTimeLSTM(params["input_size"], params["hidden_size"])
         self.linear1 = nn.Linear(params["hidden_size"], params["hidden_size"])
         self.linear2 = nn.Linear(params["hidden_size"], params["ntargets"])
@@ -117,8 +120,8 @@ class RTLSTM_Hawkes(nn.Module):
         self.normal_gru = nn.GRU(self.hidden_size, self.hidden_size, 1)
 
     def init_hidden(self, bs):
-        h = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to("cuda")
-        c = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to("cuda")
+        h = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to(DEVICE)
+        c = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to(DEVICE)
 
         return (h, c)
 
