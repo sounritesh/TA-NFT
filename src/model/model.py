@@ -28,6 +28,7 @@ class TransformerEncoder(nn.Module):
                 for _ in range(num_layers)
             ]
         )
+        self.final_layer = nn.Linear(self.hidden_size, params["ntargets"])
 
     def forward(self, src, timestamps, timestamps_inv, reach_weights) -> Tensor:
         src = self.linear1(src)
@@ -38,7 +39,11 @@ class TransformerEncoder(nn.Module):
 
         #print("SRC: ", src.shape)
         #print("Reach Weights: ", reach_weights.shape)
-        src = torch.sum(src * timestamps_inv.unsqueeze(dim=-1), 1, keepdim=True)
+        #print('Before sum: ', src.shape)
+        src = torch.sum(src * timestamps_inv.unsqueeze(dim=-1), 1, keepdim=False)
+        #print('After sum: ', src.shape)
+        src = self.final_layer(src)
+        #print('Final Layer: ', src.shape)
         return src
 
 class TLSTM_Hawkes(nn.Module):

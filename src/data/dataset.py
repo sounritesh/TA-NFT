@@ -62,10 +62,10 @@ class NFTPriceDataset(Dataset):
 
         
         return {
-            'encs': torch.tensor(encs, dtype=torch.float),
+            'encs': torch.tensor(np.array(encs, dtype=np.float), dtype=torch.float),
             'ts_w': torch.tensor(ts_w, dtype=torch.float),
             'ts_inv': torch.tensor(ts_inv, dtype=torch.float),
-            'imp_w': torch.tensor(imp_w, dtype=torch.float),       
+            'imp_w': torch.tensor(np.array(imp_w, dtype=np.float), dtype=torch.float),       
             'price': torch.tensor(price, dtype=torch.float),
             'price_og': torch.tensor(self.prices_og[index], dtype=torch.float)
         }
