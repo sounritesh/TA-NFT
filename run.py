@@ -38,7 +38,7 @@ parser.add_argument("--lookback", type=int, default=5, help="Specifies the lookb
 parser.add_argument("--epochs", type=int, default=10, help="Specifies the number of training epochs")
 
 parser.add_argument("--train_batch_size", type=int, default=64, help="Specifies the training batch size")
-parser.add_argument("--val_batch_size", type=int, default=256, help="Specifies the validation and testing batch size")
+parser.add_argument("--val_batch_size", type=int, default=64, help="Specifies the validation and testing batch size")
 
 args = parser.parse_args()
 
