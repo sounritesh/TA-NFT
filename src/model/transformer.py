@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch import Tensor
 import torch.nn.functional as f
-from src.model.attention import AttentionHawkes
+from src.model.attention import AttentionHawkes, MultiHeadAttention_Vanilla
 from src.utils.config import DEVICE, UTC
 
 class MultiHeadAttention(nn.Module):
@@ -59,7 +59,7 @@ class TransformerEncoderLayer(nn.Module):
         super().__init__()
         dim_q = dim_k = max(dim_model // num_heads, 1)
         self.attention = Residual(
-            MultiHeadAttention(num_heads, dim_model, bs, attention_type),
+            MultiHeadAttention_Vanilla(num_heads, dim_model, bs, attention_type),
             dimension=dim_model,
             dropout=dropout,
         )
