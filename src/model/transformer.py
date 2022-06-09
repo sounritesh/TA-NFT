@@ -77,5 +77,4 @@ class TransformerEncoderLayer(nn.Module):
         #context = src * reach_weights.unsqueeze(dim=-1)
         context = src * timestamps_inv.unsqueeze(dim=-1)
         src = self.attention(src, context, timestamps)
-        #print(torch.sum(src))
         return self.feed_forward(src)

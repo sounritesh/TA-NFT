@@ -15,8 +15,11 @@ class AttentionHawkes(torch.nn.Module):
         self.linear_out = torch.nn.Linear(dimensions * 2, dimensions, bias=False)
         self.softmax = torch.nn.Softmax(dim=-1)
         self.tanh = torch.nn.Tanh()
-        self.ae = torch.nn.Parameter(torch.FloatTensor(bs, 1, 1))
-        self.ab = torch.nn.Parameter(torch.FloatTensor(bs, 1, 1))
+        #self.ae = torch.nn.Parameter(torch.FloatTensor(bs, 1, 1))
+        #self.ab = torch.nn.Parameter(torch.FloatTensor(bs, 1, 1))
+        self.ae = nn.Parameter(torch.Tensor([1.0]), requires_grad=True)
+        self.ab = nn.Parameter(torch.Tensor([1.0]), requires_grad=True)
+
 
     def forward(self, query, context, delta_t, c=1.0):
         batch_size, output_len, dimensions = query.size()
@@ -29,7 +32,6 @@ class AttentionHawkes(torch.nn.Module):
 
         attention_scores = torch.bmm(query, context.transpose(1, 2).contiguous())
 
-
         # Compute weights across every context sequence
         attention_scores = attention_scores.view(batch_size * output_len, query_len)
         attention_weights = self.softmax(attention_scores)
@@ -40,7 +42,9 @@ class AttentionHawkes(torch.nn.Module):
         else:
             mix = torch.matmul(context.permute(0, 2, 1), attention_weights.permute(0, 2, 1))
             #print("Mix:", mix.shape)
+        #print("Ab: ", torch.sum(self.ab))        
         bt = torch.exp(-1 * self.ab * delta_t.reshape(batch_size, query_len,  1).permute(0, 2, 1))
+        #print(torch.sum(bt))
         term_2 = nn.ReLU()(self.ae * mix * bt)
         if output_len==1:
             mix = torch.sum(term_2 + mix, -1).unsqueeze(1)
@@ -52,5 +56,4 @@ class AttentionHawkes(torch.nn.Module):
         combined = combined.view(batch_size * output_len, 2 * dimensions)
         output = self.linear_out(combined).view(batch_size, output_len, dimensions)
         output = self.tanh(output)
-
         return output, attention_weights
