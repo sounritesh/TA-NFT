@@ -57,6 +57,8 @@ class Engine:
                 outputs = self.model(inputs).squeeze(1)
 
             # outputs = self.scaler.inverse_transform(outputs)
+            print(outputs)
+            print(targets)
             if self.classification:
                 loss = self.loss_fn(targets, outputs)
             else:
