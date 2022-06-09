@@ -22,8 +22,8 @@ class MultiHeadAttention(nn.Module):
 def position_encoding(seq_len: int, dim_model: int) -> Tensor:
     pos = torch.arange(seq_len, dtype=torch.float, device=DEVICE).reshape(1, -1, 1)
     dim = torch.arange(dim_model, dtype=torch.float, device=DEVICE).reshape(1, 1, -1)
-    phase = pos / (1e4 ** (dim // dim_model))
-
+    #phase = pos / (1e4 ** (dim // dim_model))
+    phase = pos / (1e4 ** torch.div(dim, dim_model, rounding_mode='floor'))
     return torch.where(dim.long() % 2 == 0, torch.sin(phase), torch.cos(phase))
 
 def feed_forward(dim_input: int = 512, dim_feedforward: int = 2048) -> nn.Module:
@@ -74,4 +74,5 @@ class TransformerEncoderLayer(nn.Module):
         #context = src * timestamps_inv.unsqueeze(dim=-1)
         context = src * reach_weights.unsqueeze(dim=-1)
         src = self.attention(src, context, timestamps)
+        print(torch.sum(src))
         return self.feed_forward(src)
