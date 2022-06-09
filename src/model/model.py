@@ -1,9 +1,45 @@
 from pytest import param
 import torch.nn as nn
 import torch
-
+from torch import Tensor
 from src.model.rnn import TimeLSTM, RTimeLSTM
 from src.model.attention import AttentionHawkes
+from src.model.transformer import TransformerEncoderLayer, position_encoding
+
+
+class TransformerEncoder(nn.Module):
+    def __init__(
+        self,
+        params,
+        bs,
+        num_layers: int = 2,
+        num_heads: int = 2,
+        dim_feedforward: int = 256,
+        dropout: float = 0.1,
+    ):
+        super().__init__()
+        self.attn_type = "hawkes"
+        self.hidden_size = params["hidden_size"]
+        self.bs = bs
+        self.linear1 = nn.Linear(params['input_size'], self.hidden_size)
+        self.layers = nn.ModuleList(
+            [
+                TransformerEncoderLayer(self.bs, self.hidden_size, num_heads, dim_feedforward, dropout)
+                for _ in range(num_layers)
+            ]
+        )
+
+    def forward(self, src, timestamps, timestamps_inv, reach_weights) -> Tensor:
+        src = self.linear1(src)
+        seq_len, dimension = src.size(1), src.size(2)
+        src += position_encoding(seq_len, dimension)
+        for layer in self.layers:
+            src = layer(src, timestamps, timestamps_inv, reach_weights)
+
+        #print("SRC: ", src.shape)
+        #print("Reach Weights: ", reach_weights.shape)
+        src = torch.sum(src * timestamps_inv.unsqueeze(dim=-1), 1, keepdim=True)
+        return src
 
 class TLSTM_Hawkes(nn.Module):
     def __init__(
@@ -51,6 +87,7 @@ class TLSTM_Hawkes(nn.Module):
         output_fin = nn.ReLU()(output_fin)
         output_fin = self.dropout(output_fin)
         output_fin = self.linear2(output_fin)
+        #print("output fin:", output_fin.shape)
         return output_fin
 
 class RTLSTM_Hawkes(nn.Module):

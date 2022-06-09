@@ -51,6 +51,8 @@ class Engine:
                 outputs = self.model(inputs, timestamps, timestamps_inv).squeeze(1)
             elif self.model_type == 'rtlstm_hawkes':
                 outputs = self.model(inputs, timestamps, timestamps_inv, reach_weights).squeeze(1)
+            elif self.model_type == 'transformer':
+                outputs = self.model(inputs, timestamps, timestamps_inv, reach_weights).squeeze(1)
             else:
                 outputs = self.model(inputs).squeeze(1)
 
