@@ -1,9 +1,52 @@
 from pytest import param
 import torch.nn as nn
 import torch
-
+from torch import Tensor
 from src.model.rnn import TimeLSTM, RTimeLSTM
 from src.model.attention import AttentionHawkes
+from src.model.transformer import TransformerEncoderLayer, position_encoding
+from src.utils.config import DEVICE, UTC
+
+
+
+class TransformerEncoder(nn.Module):
+    def __init__(
+        self,
+        params,
+        bs,
+        num_layers: int = 2,
+        num_heads: int = 2,
+        dim_feedforward: int = 256,
+        dropout: float = 0.1,
+    ):
+        super().__init__()
+        self.attn_type = "hawkes"
+        self.hidden_size = params["hidden_size"]
+        self.bs = bs
+        self.linear1 = nn.Linear(params['input_size'], self.hidden_size)
+        self.layers = nn.ModuleList(
+            [
+                TransformerEncoderLayer(self.bs, self.hidden_size, num_heads, dim_feedforward, dropout)
+                for _ in range(num_layers)
+            ]
+        )
+        self.final_layer = nn.Linear(self.hidden_size, params["ntargets"])
+
+    def forward(self, src, timestamps, timestamps_inv, reach_weights) -> Tensor:
+        src = self.linear1(src)
+        seq_len, dimension = src.size(1), src.size(2)
+        src += position_encoding(seq_len, dimension)
+        for layer in self.layers:
+            src = layer(src, timestamps, timestamps_inv, reach_weights)
+
+        #print("SRC: ", src.shape)
+        #print("Reach Weights: ", torch.sum(reach_weights))
+        #print('Before sum: ', src.shape)
+        src = torch.sum(src * timestamps_inv.unsqueeze(dim=-1), 1, keepdim=False)
+        #print('After sum: ', src.shape)
+        src = self.final_layer(src)
+        #print('Final Layer: ', src.shape)
+        return src
 
 class TLSTM_Hawkes(nn.Module):
     def __init__(
@@ -27,8 +70,8 @@ class TLSTM_Hawkes(nn.Module):
         self.normal_gru = nn.GRU(self.hidden_size, self.hidden_size, 1)
 
     def init_hidden(self, bs):
-        h = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to("cuda")
-        c = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to("cuda")
+        h = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to(DEVICE)
+        c = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to(DEVICE)
 
         return (h, c)
 
@@ -51,6 +94,7 @@ class TLSTM_Hawkes(nn.Module):
         output_fin = nn.ReLU()(output_fin)
         output_fin = self.dropout(output_fin)
         output_fin = self.linear2(output_fin)
+        #print("output fin:", output_fin.shape)
         return output_fin
 
 class RTLSTM_Hawkes(nn.Module):
@@ -61,6 +105,7 @@ class RTLSTM_Hawkes(nn.Module):
     ):
         super().__init__()
         # self.hyp_lstm = TimeLSTMHyp(input_size, hidden_size)
+        #print(params['input_size'])
         self.time_lstm = RTimeLSTM(params["input_size"], params["hidden_size"])
         self.linear1 = nn.Linear(params["hidden_size"], params["hidden_size"])
         self.linear2 = nn.Linear(params["hidden_size"], params["ntargets"])
@@ -75,8 +120,8 @@ class RTLSTM_Hawkes(nn.Module):
         self.normal_gru = nn.GRU(self.hidden_size, self.hidden_size, 1)
 
     def init_hidden(self, bs):
-        h = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to("cuda")
-        c = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to("cuda")
+        h = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to(DEVICE)
+        c = (torch.zeros(bs, self.hidden_size, requires_grad=True)).to(DEVICE)
 
         return (h, c)
 

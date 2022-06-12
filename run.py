@@ -19,7 +19,7 @@ parser.add_argument("--seed", type=int, default=0, help="Random seed for all sam
 parser.add_argument("--data_dir", type=str, help="Path to data folder")
 # parser.add_argument("--bert_path", default="bert-base-multilingual-uncased", type=str, help="Path to base bert model")
 
-parser.add_argument("--model", default="mlp", type=str, help="Name of the model: [mlp, lstm, tlstm, wtlstm]")
+parser.add_argument("--model", default="transformer", type=str, help="Name of the model: [mlp, lstm, tlstm, wtlstm, transformer]")
 
 parser.add_argument("--lr", type=float, default=1e-4, help="Specifies the learning rate for optimizer")
 parser.add_argument("--dropout", type=float, default=0.3, help="Specifies the dropout for BERT output")
@@ -38,7 +38,7 @@ parser.add_argument("--lookback", type=int, default=5, help="Specifies the lookb
 parser.add_argument("--epochs", type=int, default=10, help="Specifies the number of training epochs")
 
 parser.add_argument("--train_batch_size", type=int, default=64, help="Specifies the training batch size")
-parser.add_argument("--val_batch_size", type=int, default=256, help="Specifies the validation and testing batch size")
+parser.add_argument("--val_batch_size", type=int, default=64, help="Specifies the validation and testing batch size")
 
 args = parser.parse_args()
 
@@ -120,7 +120,9 @@ def run_training(params, save_model=False):
     elif args.model == 'tlstm_hawkes':
         model = model_pkg.TLSTM_Hawkes(params, args.train_batch_size)
     elif args.model == 'rtlstm_hawkes':
-        model = model_pkg.RTimeLSTM(params, args.train_batch_size)
+        model = model_pkg.RTLSTM_Hawkes(params, args.train_batch_size)
+    elif args.model == 'transformer':
+        model = model_pkg.TransformerEncoder(params, args.train_batch_size)
 
     model.to(DEVICE)
 

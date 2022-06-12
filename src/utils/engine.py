@@ -51,10 +51,14 @@ class Engine:
                 outputs = self.model(inputs, timestamps, timestamps_inv).squeeze(1)
             elif self.model_type == 'rtlstm_hawkes':
                 outputs = self.model(inputs, timestamps, timestamps_inv, reach_weights).squeeze(1)
+            elif self.model_type == 'transformer':
+                outputs = self.model(inputs, timestamps, timestamps_inv, reach_weights).squeeze(1)
             else:
                 outputs = self.model(inputs).squeeze(1)
 
             # outputs = self.scaler.inverse_transform(outputs)
+            #print(outputs)
+            #print(targets)
             if self.classification:
                 loss = self.loss_fn(targets, outputs)
             else:
@@ -104,6 +108,8 @@ class Engine:
                 elif self.model_type == 'tlstm_hawkes':
                     outputs = self.model(inputs, timestamps, timestamps_inv).squeeze(1)
                 elif self.model_type == 'rtlstm_hawkes':
+                    outputs = self.model(inputs, timestamps, timestamps_inv, reach_weights).squeeze(1)
+                elif self.model_type == 'transformer':
                     outputs = self.model(inputs, timestamps, timestamps_inv, reach_weights).squeeze(1)
                 else:
                     outputs = self.model(inputs).squeeze(1)

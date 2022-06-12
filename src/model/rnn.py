@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from src.utils.config import DEVICE, UTC
 
 class TimeLSTM(nn.Module):
     def __init__(self, input_size, hidden_size):
@@ -12,11 +13,11 @@ class TimeLSTM(nn.Module):
 
     def forward(self, inputs, timestamps, reverse=False):
         b, seq, embed = inputs.size()
-        h = torch.zeros(b, self.hidden_size, requires_grad=False)
-        c = torch.zeros(b, self.hidden_size, requires_grad=False)
+        h = torch.zeros(b, self.hidden_size, requires_grad=False).to(DEVICE)
+        c = torch.zeros(b, self.hidden_size, requires_grad=False).to(DEVICE)
 
-        h = h.cuda()
-        c = c.cuda()
+        #h = h.cuda()
+        #c = c.cuda()
         outputs = []
         for s in range(seq):
             c_s1 = torch.tanh(self.W_d(c)) #short mem
@@ -43,16 +44,15 @@ class RTimeLSTM(nn.Module):
         self.hidden_size = hidden_size
         self.input_size = input_size
         self.W_all = nn.Linear(hidden_size, hidden_size * 4)
+        #print(input_size)
         self.U_all = nn.Linear(input_size, hidden_size * 4)
         self.W_d = nn.Linear(hidden_size, hidden_size)
 
     def forward(self, inputs, timestamps, reach_weights, reverse=False):
         b, seq, embed = inputs.size()
-        h = torch.zeros(b, self.hidden_size, requires_grad=False)
-        c = torch.zeros(b, self.hidden_size, requires_grad=False)
+        h = torch.zeros(b, self.hidden_size, requires_grad=False).to(DEVICE)
+        c = torch.zeros(b, self.hidden_size, requires_grad=False).to(DEVICE)
 
-        h = h.cuda()
-        c = c.cuda()
         outputs = []
         for s in range(seq):
             c_s1 = torch.tanh(self.W_d(c)) #short mem
