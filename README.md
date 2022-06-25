@@ -1,13 +1,13 @@
 # TA-NFT
 ### Steps to train the model:
 1. Download and extract the data zip file.
-3. Encode the preprocessed tweets using BERTweet and save the encodings in a ".npy" file.
-4. Keep all the extracted files and encodings in the same folder.
-5. Install all dependencies using:
+2. Encode the preprocessed tweets using BERTweet and save the encodings in a ".npy" file.
+3. Keep all the extracted files and encodings in the same folder.
+4. Install all dependencies using:
   ```
   pip install -r requirements.txt
   ```
-6. Train the model using the commands:
+5. Train the model using the commands:
   - For Daily Average Price Prediction:
     ```
     python run.py --data_dir $PATH_TO_DATA_DIR --model rtlstm_hawkes --output_dir $PATH_TO_SAVE_CHECKPOINTS --epochs 20 
