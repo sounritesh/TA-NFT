@@ -8,7 +8,7 @@
   ```
   pip install -r requirements.txt
   ```
-7. Train the model using the commands:
+6. Train the model using the commands:
   - For Daily Average Price Prediction:
     ```
     python run.py --data_dir $PATH_TO_DATA_DIR --model rtlstm_hawkes --output_dir $PATH_TO_SAVE_CHECKPOINTS --epochs 20 
