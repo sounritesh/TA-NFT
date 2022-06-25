@@ -47,70 +47,17 @@ np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 
 def run_training(params, save_model=False):
-    encodings = np.load(os.path.join(args.data_dir, "tweet_encodings.npy"))
+    #encodings = np.load(os.path.join(args.data_dir, "tweet_encodings.npy"))
 
-    tweets_ds = pd.read_csv(os.path.join(args.data_dir, "tweets.csv"))
-    tweets_ds['Datetime'] = pd.to_datetime(tweets_ds['Datetime']).dt.tz_localize(None)
-    tweet_scaler1 = MinMaxScaler(tweets_ds['LikeCount'].values, DEVICE)
-    tweet_scaler2 = MinMaxScaler(tweets_ds['RetweetCount'].values, DEVICE)
+    #tweets_ds = pd.read_csv(os.path.join(args.data_dir, "tweets.csv"))
+    #tweets_ds['Datetime'] = pd.to_datetime(tweets_ds['Datetime']).dt.tz_localize(None)
+    #tweet_scaler1 = MinMaxScaler(tweets_ds['LikeCount'].values, DEVICE)
+    #tweet_scaler2 = MinMaxScaler(tweets_ds['RetweetCount'].values, DEVICE)
 
-    tweets_ds['LikeCount'] = tweet_scaler1.transform(tweets_ds['LikeCount'].values).cpu().numpy()
-    tweets_ds['RetweetCount'] = tweet_scaler2.transform(tweets_ds['RetweetCount'].values).cpu().numpy()
-
-    if args.classification:
-        prices_ds = pd.read_csv(os.path.join(args.data_dir, "price_movement.csv"))
-        prices_ds = prices_ds[prices_ds['label']!=2]
-        prices_ds['block_timestamp'] = pd.to_datetime(prices_ds['block_timestamp'])
-
-        if args.zero_shot:
-            prices_ds = prices_ds.sort_values(['project', 'block_timestamp'], ascending=[False, True])
-        else:
-            prices_ds = prices_ds.sort_values('block_timestamp')
-
-
-        test_size = int(0.15*prices_ds.shape[0])
-        prices_train = prices_ds[:-test_size]
-        prices_test = prices_ds[-test_size:]
-
-        print(f"Train Set: {prices_train.project.unique()}\nTest Set: {prices_test.project.unique()}")
-
-        # prices_ds = prices_ds.sample(frac=0.1)
-        # prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
-        # prices_test = prices_ds.drop(prices_train.index)
-
-        train_ds = NFTMovementDataset(prices_train, tweets_ds, encodings, args.lookback)
-        val_ds = NFTMovementDataset(prices_test, tweets_ds, encodings, args.lookback)
-        
-    else:
-        prices_ds = pd.read_csv(os.path.join(args.data_dir, "avg_price.csv"))
-        prices_ds['ts'] = pd.to_datetime(prices_ds['ts'])
-
-        if args.zero_shot:
-            prices_ds = prices_ds.sort_values(['project', 'ts'], ascending=[False, True])
-        else:
-            prices_ds = prices_ds.sort_values('ts')
-
-        test_size = int(0.15*prices_ds.shape[0])
-        prices_train = prices_ds[:-test_size]
-        prices_test = prices_ds[-test_size:]
-
-        print(f"Train Set: {prices_train.project.unique()}\nTest Set: {prices_test.project.unique()}")
-
-        # prices_train = prices_ds.sample(frac=0.85, random_state=args.seed)
-        # prices_test = prices_ds.drop(prices_train.index)
-    
-        target_scaler = MinMaxScaler(prices_train['mean'].values, DEVICE)
-
-        prices_train['mean_norm'] = target_scaler.transform(prices_train['mean'].values).cpu().numpy()
-        prices_test['mean_norm'] = target_scaler.transform(prices_test['mean'].values).cpu().numpy()
-
-        train_ds = NFTPriceDataset(prices_train, tweets_ds, encodings, args.lookback)
-        val_ds = NFTPriceDataset(prices_test, tweets_ds, encodings, args.lookback)
+    #tweets_ds['LikeCount'] = tweet_scaler1.transform(tweets_ds['LikeCount'].values).cpu().numpy()
+    #tweets_ds['RetweetCount'] = tweet_scaler2.transform(tweets_ds['RetweetCount'].values).cpu().numpy()
 
     
-    train_dl = DataLoader(train_ds, batch_size=args.train_batch_size, shuffle=True, drop_last=True)
-    val_dl = DataLoader(val_ds, batch_size=args.val_batch_size, shuffle=True, drop_last=True)
-
     if args.model == 'mlp':
         model = model_pkg.MLP(params)
     elif args.model == 'lstm':
@@ -123,7 +70,12 @@ def run_training(params, save_model=False):
         model = model_pkg.RTLSTM_Hawkes(params, args.train_batch_size)
     elif args.model == 'transformer':
         model = model_pkg.TransformerEncoder(params, args.train_batch_size)
-
+    
+    pt = sum(p.numel() for p in model.parameters())
+    pt2 = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    
+    print(pt, pt2)
+    
     model.to(DEVICE)
 
     param_optimizer = list(model.named_parameters())
