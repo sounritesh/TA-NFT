@@ -1,7 +1,6 @@
 # TA-NFT
 ### Steps to train the model:
 1. Download and extract the data zip file.
-2. Preprocess all tweets as described in the paper.
 3. Encode the preprocessed tweets using BERTweet and save the encodings in a ".npy" file.
 4. Keep all the extracted files and encodings in the same folder.
 5. Install all dependencies using:
